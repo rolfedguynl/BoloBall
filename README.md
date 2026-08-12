@@ -4,6 +4,8 @@ A browser remake of the classic **Bolo Ball** puzzle game (Soleau Software). Pus
 
 Built with **TypeScript** and **Vite**. No framework — canvas rendering and a small DOM shell for menus and HUD.
 
+![Bolo Ball gameplay](docs/images/gameplay.png)
+
 ## Play
 
 ```bash
