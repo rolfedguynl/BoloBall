@@ -1,0 +1,266 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b1020;
+  --panel: #151c33;
+  --border: #3b82f6;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --accent: #38bdf8;
+  --btn: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Outfit, system-ui, sans-serif;
+}
+
+.shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Absolute so the canvas bitmap size can never feed back into layout sizing */
+#game {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+  cursor: pointer;
+}
+
+#game.chunky {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.hud-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 12px 12px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.45));
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.game-btns,
+.theme-btns {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.game-btns.hidden {
+  display: none;
+}
+
+.game-btns button,
+.theme-btns button {
+  border: 1px solid #475569;
+  background: rgba(15, 23, 42, 0.85);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font: 600 13px Outfit, sans-serif;
+}
+
+.game-btns button:hover,
+.theme-btns button:hover {
+  border-color: var(--accent);
+}
+
+.theme-btns button.active {
+  border-color: var(--accent);
+  background: #1d4ed8;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(56, 189, 248, 0.18), transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(239, 68, 68, 0.14), transparent 45%),
+    rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(4px);
+  z-index: 5;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.panel {
+  width: min(420px, calc(100vw - 32px));
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.panel h1,
+.panel h2 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+}
+
+.tagline {
+  margin: 0 0 20px;
+  color: var(--muted);
+}
+
+.panel label {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.panel select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: var(--text);
+  font: 500 15px Outfit, sans-serif;
+}
+
+.panel button {
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font: 600 15px Outfit, sans-serif;
+}
+
+.panel button.primary {
+  background: var(--btn);
+  border-color: #60a5fa;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.panel .row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.panel .row button {
+  flex: 1;
+  /* .primary adds a top margin for the stacked menu form; in a row it would
+     offset one button and leave the pair mismatched in height. */
+  margin-top: 0;
+  width: auto;
+}
+
+.result-panel {
+  text-align: center;
+  border-width: 2px;
+  overflow: hidden;
+}
+
+.result-kicker {
+  margin: -28px -24px 22px;
+  padding: 10px;
+  font: 700 0.78rem/1 Outfit, sans-serif;
+  letter-spacing: 0.24em;
+  color: #fff;
+}
+
+.result-panel h2 {
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  line-height: 1;
+  margin-bottom: 14px;
+}
+
+#results-detail {
+  margin: 0 0 16px;
+  color: var(--text);
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+#results-scores {
+  margin: 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.65);
+  color: var(--muted);
+  font: 700 1rem/1.2 "IBM Plex Mono", monospace;
+}
+
+.result-win {
+  border-color: #22c55e;
+  box-shadow: 0 0 50px rgba(34, 197, 94, 0.28);
+}
+
+.result-win .result-kicker {
+  background: #15803d;
+}
+
+.result-win h2 {
+  color: #4ade80;
+}
+
+.result-lose {
+  border-color: #ef4444;
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.25);
+}
+
+.result-lose .result-kicker {
+  background: #b91c1c;
+}
+
+.result-lose h2 {
+  color: #f87171;
+}
+
+.result-draw {
+  border-color: #f59e0b;
+  box-shadow: 0 0 50px rgba(245, 158, 11, 0.24);
+}
+
+.result-draw .result-kicker {
+  background: #b45309;
+}
+
+.result-draw h2 {
+  color: #fbbf24;
+}
+
+.hint {
+  margin: 16px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
