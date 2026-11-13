@@ -1,7 +1,7 @@
 import { cloneBoard } from './board';
 import { applyDrop, simulateDrop, scoreForDrop } from './physics';
 import { createRng } from './rng';
-import { COLS, ROWS } from './types';
+import { COLS } from './types';
 import type { AiDifficulty, BoardState, PlayerId } from './types';
 
 /**
@@ -59,16 +59,6 @@ function evaluateDrop(
     denial += Math.max(0, 40 - scoreForDrop(simulateDrop(sim, c, rng)));
   }
   score += (denial / COLS) * BLOCK_WEIGHT[difficulty];
-
-  // Resting above gray is worth a little for the endgame cascade.
-  if (!result.reachedBottom) {
-    for (let r = result.finalR + 1; r < ROWS; r++) {
-      if (board.tiles[r][result.finalC].kind === 'gray') {
-        score += 3;
-        break;
-      }
-    }
-  }
 
   return score;
 }

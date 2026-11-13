@@ -25,7 +25,7 @@ Open the URL Vite prints (usually `http://localhost:5173`).
 
 Each player has one marble per column. On your turn, move the pusher along the top row and drop a marble into a free column. The marble falls, slides on arrows, collects bonuses, and may teleport through black holes. Deeper landings and bottom exits score more.
 
-When both players have used every marble, gray shelves vanish and remaining balls cascade again for bonus points. Multi-level games carry leftover balls into the next board as bonus tiles.
+When both players have used every marble, gray shelves vanish and remaining balls fall again. This cascade earns no points: a ball's score is final once it first stops. Multi-level games carry leftover balls into the next board as bonus tiles.
 
 Full rules and scoring: [docs/GAMEPLAY.md](docs/GAMEPLAY.md).
 

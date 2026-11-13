@@ -61,24 +61,65 @@ export function bindInput(
     }
   };
 
-  const onClick = (e: MouseEvent) => {
-    if (match.phase !== 'playing') return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+  /** Column under a pointer, or -1 when it is outside the board's columns. */
+  const colAt = (clientX: number): number => {
     const layout = (canvas as HTMLCanvasElement & { __layout?: LayoutHit }).__layout;
-    if (!layout) return;
-    if (x < layout.boardX || x > layout.boardX + layout.boardW) return;
-    const col = Math.floor((x - layout.boardX) / layout.cell);
+    if (!layout) return -1;
+    const x = clientX - canvas.getBoundingClientRect().left;
+    if (x < layout.boardX || x >= layout.boardX + layout.boardW) return -1;
+    return Math.floor((x - layout.boardX) / layout.cell);
+  };
+
+  // Tap a column to walk the pusher there; tap the column the pusher is already
+  // on to drop. So a new ball takes two taps, the current one takes one. Done by
+  // comparing columns rather than relying on double-click, which phones treat
+  // as zoom. Dragging aims live; lifting after a drag never drops.
+  let press: { id: number; startCol: number; wasSelected: boolean; moved: boolean } | null = null;
+
+  const onPointerDown = (e: PointerEvent) => {
+    if (match.phase !== 'playing' || match.isAiControlling()) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const col = colAt(e.clientX);
+    if (col < 0) return;
+    e.preventDefault();
+    canvas.focus();
+    const wasSelected = col === match.selectorCol;
+    press = { id: e.pointerId, startCol: col, wasSelected, moved: false };
+    try {
+      canvas.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    if (!wasSelected) match.setSelector(col);
+  };
+
+  const onPointerMove = (e: PointerEvent) => {
+    if (!press || e.pointerId !== press.id) return;
+    const col = colAt(e.clientX);
+    if (col < 0 || col === press.startCol) return;
+    press.moved = true;
     match.setSelector(col);
-    if (e.detail === 2) match.tryDrop();
+  };
+
+  const onPointerUp = (e: PointerEvent) => {
+    if (!press || e.pointerId !== press.id) return;
+    const p = press;
+    press = null;
+    if (e.type === 'pointerup' && !p.moved && p.wasSelected) match.tryDrop();
   };
 
   window.addEventListener('keydown', onKey);
-  canvas.addEventListener('click', onClick);
+  canvas.addEventListener('pointerdown', onPointerDown);
+  canvas.addEventListener('pointermove', onPointerMove);
+  canvas.addEventListener('pointerup', onPointerUp);
+  canvas.addEventListener('pointercancel', onPointerUp);
 
   return () => {
     window.removeEventListener('keydown', onKey);
-    canvas.removeEventListener('click', onClick);
+    canvas.removeEventListener('pointerdown', onPointerDown);
+    canvas.removeEventListener('pointermove', onPointerMove);
+    canvas.removeEventListener('pointerup', onPointerUp);
+    canvas.removeEventListener('pointercancel', onPointerUp);
   };
 }
 

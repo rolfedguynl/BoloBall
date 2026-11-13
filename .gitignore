@@ -8,7 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
+# dist/ is committed on purpose: it is the built game served by GitHub Pages.
 dist-ssr
 *.local
 
@@ -16,6 +16,7 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+.vs
 .DS_Store
 *.suo
 *.ntvs*

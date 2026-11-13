@@ -60,7 +60,7 @@ After all marbles are placed:
 
 1. All **gray** tiles are removed.
 2. Every remaining ball falls again from its cell (bottom-most first).
-3. Each cascade awards only **additional** score beyond the depth points already earned for that ball’s previous resting row (never negative).
+3. The cascade awards **no points** and collects no bonus tiles. A ball’s score is fixed the moment it first comes to rest.
 
 ### Multi-level carry
 

@@ -37,13 +37,23 @@ export function mountAppShell(root: HTMLElement): {
       onPeek: () => void;
       onSound: () => void;
       onQuickFinish: () => void;
+      onLeft: () => void;
+      onRight: () => void;
+      onDrop: () => void;
     },
   ) => void;
+  /** Height of the HTML control bar overlaying the bottom of the canvas. */
+  hudHeight: () => number;
 } {
   root.innerHTML = `
     <div class="shell">
       <canvas id="game" tabindex="0" aria-label="Bolo Ball game board"></canvas>
       <div class="hud-bar" id="hud-bar">
+        <div class="touch-ctrls hidden" id="touch-ctrls">
+          <button type="button" id="btn-left" aria-label="Move left">◀</button>
+          <button type="button" id="btn-drop" class="drop" aria-label="Drop ball">DROP</button>
+          <button type="button" id="btn-right" aria-label="Move right">▶</button>
+        </div>
         <div class="game-btns hidden" id="game-btns">
           <button type="button" id="btn-new-game" title="New game (N)">New Game</button>
           <button type="button" id="btn-peek" title="Peek at opponent's balls (L)">Peek</button>
@@ -91,7 +101,8 @@ export function mountAppShell(root: HTMLElement): {
             </label>
             <button type="submit" class="primary">Start Game</button>
           </form>
-          <p class="hint">←→ move · ↓/Space push · L peek · T theme · S sound · N new · Esc menu</p>
+          <p class="hint hint-touch">Tap a ball to aim · tap it again to drop · drag to slide</p>
+          <p class="hint hint-keys">←→ move · ↓/Space push · L peek · T theme · S sound · N new · Esc menu</p>
         </div>
       </div>
       <div class="overlay hidden" id="results-overlay">
@@ -113,6 +124,8 @@ export function mountAppShell(root: HTMLElement): {
   const menu = root.querySelector('#menu-overlay') as HTMLElement;
   const results = root.querySelector('#results-overlay') as HTMLElement;
   const gameBtns = root.querySelector('#game-btns') as HTMLElement;
+  const touchCtrls = root.querySelector('#touch-ctrls') as HTMLElement;
+  const hudBar = root.querySelector('#hud-bar') as HTMLElement;
   let selection = { ...DEFAULT };
 
   return {
@@ -121,6 +134,7 @@ export function mountAppShell(root: HTMLElement): {
       menu.classList.remove('hidden');
       results.classList.add('hidden');
       gameBtns.classList.add('hidden');
+      touchCtrls.classList.add('hidden');
       const form = root.querySelector('#menu-form') as HTMLFormElement;
       form.onsubmit = (e) => {
         e.preventDefault();
@@ -146,6 +160,7 @@ export function mountAppShell(root: HTMLElement): {
     showResults(blue, red, title, detail, outcome, onAgain, onMenu) {
       results.classList.remove('hidden');
       gameBtns.classList.add('hidden');
+      touchCtrls.classList.add('hidden');
       const panel = root.querySelector('#result-panel') as HTMLElement;
       panel.classList.remove('result-win', 'result-lose', 'result-draw');
       panel.classList.add(`result-${outcome}`);
@@ -171,6 +186,10 @@ export function mountAppShell(root: HTMLElement): {
     },
     setGameControls(visible, handlers) {
       gameBtns.classList.toggle('hidden', !visible);
+      touchCtrls.classList.toggle('hidden', !visible);
+      (root.querySelector('#btn-left') as HTMLButtonElement).onclick = () => handlers.onLeft();
+      (root.querySelector('#btn-right') as HTMLButtonElement).onclick = () => handlers.onRight();
+      (root.querySelector('#btn-drop') as HTMLButtonElement).onclick = () => handlers.onDrop();
       (root.querySelector('#btn-to-menu') as HTMLButtonElement).onclick = () => handlers.onMenu();
       (root.querySelector('#btn-new-game') as HTMLButtonElement).onclick = () =>
         handlers.onNewGame();
@@ -179,6 +198,9 @@ export function mountAppShell(root: HTMLElement): {
       (root.querySelector('#btn-quick-finish') as HTMLButtonElement).onclick = () =>
         handlers.onQuickFinish();
       (root.querySelector('#btn-sound') as HTMLButtonElement).onclick = () => handlers.onSound();
+    },
+    hudHeight() {
+      return hudBar.getBoundingClientRect().height;
     },
   };
 }

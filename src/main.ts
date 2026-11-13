@@ -39,6 +39,9 @@ function syncGameControls(visible: boolean): void {
       match.quickPlayRemainder();
       ui.canvas.focus();
     },
+    onLeft: () => match.moveSelector(-1),
+    onRight: () => match.moveSelector(1),
+    onDrop: () => match.tryDrop(),
   });
 }
 
@@ -158,7 +161,7 @@ function frame(now: number): void {
   bindThemes();
   const theme = match.theme;
   ui.canvas.classList.toggle('chunky', theme === 'classic');
-  renderMatch(ui.canvas.getContext('2d')!, ui.canvas, match, now);
+  renderMatch(ui.canvas.getContext('2d')!, ui.canvas, match, now, ui.hudHeight());
   requestAnimationFrame(frame);
 }
 

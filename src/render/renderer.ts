@@ -58,13 +58,15 @@ export function renderMatch(
   canvas: HTMLCanvasElement,
   match: Match,
   timeMs: number,
+  /** Height of the HTML control bar overlapping the bottom of the canvas. */
+  hudHeight = 52,
 ): RenderLayout {
   const started = performance.now();
   // Long gaps mean the tab was parked, not that the last frame was slow.
   const gap = started - lastFrameAt;
   if (lastFrameAt > 0 && gap < 200) avgFrameMs = avgFrameMs * 0.9 + gap * 0.1;
   lastFrameAt = started;
-  const layout = drawFrame(ctx, canvas, match, timeMs);
+  const layout = drawFrame(ctx, canvas, match, timeMs, hudHeight);
   avgRenderMs = avgRenderMs * 0.9 + (performance.now() - started) * 0.1;
   return layout;
 }
@@ -74,6 +76,7 @@ function drawFrame(
   canvas: HTMLCanvasElement,
   match: Match,
   timeMs: number,
+  hudHeight: number,
 ): RenderLayout {
   const theme = getTheme(match.theme);
   const cssW = canvas.clientWidth;
@@ -104,12 +107,15 @@ function drawFrame(
     return { boardX: 0, boardY: 0, boardW: cssW, boardH: cssH, cell: 16 };
   }
 
-  const topBar = 36;
-  const scoreBand = 40;
-  const padX = 10;
+  // Portrait phones: the 29-column board is width-bound, so give it every
+  // horizontal pixel and stack the title on two short lines.
+  const compact = cssW < cssH || cssW < 700;
+  const topBar = compact ? 46 : 36;
+  const scoreBand = compact ? 34 : 40;
+  const padX = compact ? 3 : 10;
   const padY = 6;
   // Space kept free at the bottom for the HTML button bar
-  const hudReserve = 52;
+  const hudReserve = Math.max(0, Math.ceil(hudHeight));
 
   // Pusher and ball bands scale with the cell so nothing gets clipped:
   //   pusherBand = 1.5 * cell, ballBand = cell + 6, gutterBand = 0.9 * cell
@@ -117,10 +123,11 @@ function drawFrame(
   const fixedChrome = topBar + scoreBand + hudReserve + 6 + padY * 2;
   const cellByHeight = (cssH - fixedChrome) / (ROWS + 3.4);
   const cell = Math.max(8, Math.floor(Math.min(boardAreaW / COLS, cellByHeight)));
-  const pusherBand = Math.round(cell * 1.5);
-  const ballBand = cell + 6;
+  // Tiny cells would squash the pusher into the title bar; keep a floor.
+  const pusherBand = Math.max(Math.round(cell * 1.5), compact ? 30 : 0);
+  const ballBand = Math.max(cell + 6, compact ? 20 : 0);
   // Channel below the field where balls that reach the bottom roll out
-  const gutterBand = Math.round(cell * 0.9);
+  const gutterBand = Math.max(Math.round(cell * 0.9), compact ? 12 : 0);
 
   const boardW = cell * COLS;
   const boardH = cell * ROWS;
@@ -129,7 +136,10 @@ function drawFrame(
   // Center the play stack in the space between title bar and button bar
   const freeTop = topBar + padY;
   const freeH = Math.max(contentH, cssH - hudReserve - freeTop);
-  const contentTop = freeTop + Math.floor((freeH - contentH) / 2);
+  // Portrait: sit the board just above the controls (within thumb reach)
+  // rather than floating in the middle of a tall screen.
+  const slack = freeH - contentH;
+  const contentTop = freeTop + Math.floor(compact ? slack * 0.85 : slack / 2);
   const boardY = contentTop + pusherBand + ballBand;
 
   const layout: RenderLayout = {
@@ -142,11 +152,11 @@ function drawFrame(
 
   (canvas as HTMLCanvasElement & { __layout?: LayoutHit }).__layout = layout;
 
-  drawTitleBar(ctx, match, theme, cssW, topBar);
+  drawTitleBar(ctx, match, theme, cssW, topBar, compact);
   drawPusherAndBalls(ctx, match, theme, layout, contentTop, pusherBand, ballBand, timeMs);
   drawExitGutter(ctx, theme, layout, cssW, gutterBand);
   drawBoard(ctx, match, theme, layout, gutterBand);
-  drawScoreStrip(ctx, match, theme, layout, cssW, gutterBand, scoreBand);
+  drawScoreStrip(ctx, match, theme, layout, cssW, gutterBand, scoreBand, compact);
 
   return layout;
 }
@@ -227,6 +237,7 @@ function drawTitleBar(
   theme: ThemePalette,
   cssW: number,
   topBar: number,
+  compact: boolean,
 ): void {
   ctx.fillStyle = theme.panel;
   ctx.fillRect(0, 0, cssW, topBar);
@@ -236,6 +247,30 @@ function drawTitleBar(
   ctx.moveTo(0, topBar - 0.5);
   ctx.lineTo(cssW, topBar - 0.5);
   ctx.stroke();
+
+  if (compact) {
+    // Line 1: title + level. Line 2: whose turn / status.
+    const y1 = topBar * 0.3;
+    const y2 = topBar * 0.72;
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = theme.text;
+    ctx.font = theme.chunky ? '10px "Press Start 2P"' : `700 16px ${theme.fontTitle}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('BOLO BALL', 8, y1);
+    ctx.font = theme.chunky ? '8px "Press Start 2P"' : `600 12px ${theme.fontHud}`;
+    ctx.fillStyle = theme.textMuted;
+    ctx.textAlign = 'right';
+    ctx.fillText(
+      `LEVEL ${match.level}/${match.totalLevels}${match.soundOn ? '' : ' · MUTED'}`,
+      cssW - 8,
+      y1,
+    );
+    ctx.textAlign = 'center';
+    ctx.fillStyle = theme.text;
+    ctx.font = theme.chunky ? '8px "Press Start 2P"' : `500 13px ${theme.fontHud}`;
+    ctx.fillText(match.message, cssW / 2, y2, cssW - 16);
+    return;
+  }
 
   ctx.fillStyle = theme.text;
   ctx.font = theme.chunky ? '12px "Press Start 2P"' : `700 20px ${theme.fontTitle}`;
@@ -551,6 +586,7 @@ function drawScoreStrip(
   cssW: number,
   gutterBand: number,
   scoreBand: number,
+  compact: boolean,
 ): void {
   const y0 = layout.boardY + layout.boardH + 2 + gutterBand;
   ctx.fillStyle = theme.panel;
@@ -569,8 +605,22 @@ function drawScoreStrip(
     if (p === 0) return 'P1';
     return match.config.players === 1 ? 'AI' : 'P2';
   };
-  ctx.font = theme.chunky ? '11px "Press Start 2P"' : `700 22px ${theme.fontHud}`;
   ctx.textBaseline = 'middle';
+  if (compact) {
+    // Two halves, each capped to its width so long scores never collide.
+    const half = layout.boardW / 2 - 6;
+    const left = layout.boardX + 4;
+    const right = layout.boardX + layout.boardW - 4;
+    ctx.font = theme.chunky ? '10px "Press Start 2P"' : `700 18px ${theme.fontHud}`;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = theme.blue;
+    ctx.fillText(`BLUE ${seatTag(blueP)}  ${match.players[blueP].score}`, left, midY, half);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = theme.red;
+    ctx.fillText(`${match.players[redP].score}  ${seatTag(redP)} RED`, right, midY, half);
+    return;
+  }
+  ctx.font = theme.chunky ? '11px "Press Start 2P"' : `700 22px ${theme.fontHud}`;
   ctx.textAlign = 'left';
   ctx.fillStyle = theme.blue;
   ctx.fillText(`BLUE (${seatTag(blueP)}): ${match.players[blueP].score}`, layout.boardX, midY);

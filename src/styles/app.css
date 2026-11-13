@@ -23,6 +23,19 @@ body,
   background: var(--bg);
   color: var(--text);
   font-family: Outfit, system-ui, sans-serif;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: 100dvh;
+}
+
+button {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .shell {
@@ -41,6 +54,10 @@ body,
   display: block;
   outline: none;
   cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 #game.chunky {
@@ -54,7 +71,7 @@ body,
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  padding: 8px 12px 12px;
+  padding: 8px 12px max(12px, env(safe-area-inset-bottom));
   background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.45));
   position: absolute;
   left: 0;
@@ -263,4 +280,94 @@ body,
   font-size: 0.78rem;
   color: var(--muted);
   line-height: 1.4;
+}
+
+/* On-screen ◀ DROP ▶ — optional helpers; tapping the board works on its own. */
+.touch-ctrls {
+  display: none;
+  gap: 10px;
+  width: 100%;
+  max-width: 520px;
+  pointer-events: auto;
+}
+
+.touch-ctrls button {
+  flex: 1;
+  min-height: 56px;
+  border: 1px solid #475569;
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text);
+  border-radius: 14px;
+  font: 700 22px Outfit, sans-serif;
+  cursor: pointer;
+}
+
+.touch-ctrls button.drop {
+  flex: 1.6;
+  background: var(--btn);
+  border-color: #60a5fa;
+  font-size: 18px;
+  letter-spacing: 0.12em;
+}
+
+.touch-ctrls button:active {
+  transform: translateY(1px);
+  filter: brightness(1.2);
+}
+
+.hint-touch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .hint-touch {
+    display: block;
+  }
+  .hint-keys {
+    display: none;
+  }
+}
+
+/* Phones (portrait or narrow): stack controls under the board. */
+@media (orientation: portrait), (max-width: 700px), (pointer: coarse) and (max-height: 500px) {
+  .hud-bar {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px max(8px, env(safe-area-inset-left)) max(10px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-right));
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .touch-ctrls:not(.hidden) {
+    display: flex;
+  }
+
+  .game-btns {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .game-btns button,
+  .theme-btns button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  /* Theme stays reachable from the start menu; hide it during play to save room. */
+  .game-btns:not(.hidden) ~ .theme-btns {
+    display: none;
+  }
+
+  .panel {
+    padding: 22px 18px;
+  }
+
+  .result-kicker {
+    margin: -22px -18px 18px;
+  }
+
+  .panel select {
+    font-size: 16px;
+  }
 }

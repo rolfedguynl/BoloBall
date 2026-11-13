@@ -54,7 +54,7 @@ Important rules encoded in `physics.ts`:
 
 - Arrows are approached from above; the ball does not occupy the arrow cell
 - Depth uses `(row + 1) * POINTS_PER_ROW`, or `BOTTOM_SCORE` (60) on exit
-- Cascade re-simulates from settled cells and only awards positive score deltas
+- Cascade re-simulates from settled cells but awards no score and collects no bonus tiles (a ball's score is final once it first stops)
 
 ## Level generation
 

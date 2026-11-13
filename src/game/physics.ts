@@ -11,7 +11,6 @@ import type { BoardState, Direction, DropResult, PathStep, PlayerId } from './ty
 export interface CascadeOutcome {
   player: PlayerId;
   result: DropResult;
-  addedScore: number;
   fromR: number;
   fromC: number;
 }
@@ -277,18 +276,20 @@ export function cascadeAfterGrayRemoval(
   }
   settled.sort((a, b) => b.r - a.r || a.c - b.c);
 
+  // A ball's score is fixed once it first comes to rest. The cascade only moves
+  // balls; it never awards points or consumes bonus tiles along the way.
   const outcomes: CascadeOutcome[] = [];
   for (const ball of settled) {
-    const oldDepth = (ball.r + 1) * POINTS_PER_ROW;
-    const result = simulateFromCell(board, ball.r, ball.c, rng);
+    const raw = simulateFromCell(board, ball.r, ball.c, rng);
+    const result: DropResult = {
+      ...raw,
+      path: raw.path.filter((s) => s.kind !== 'bonus'),
+      bonusPoints: 0,
+    };
     applyDrop(board, result, ball.player);
-    const newTotal = scoreForDrop(result);
-    let added = newTotal - oldDepth;
-    if (added < 0) added = 0;
     outcomes.push({
       player: ball.player,
       result,
-      addedScore: added,
       fromR: ball.r,
       fromC: ball.c,
     });

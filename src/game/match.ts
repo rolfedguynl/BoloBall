@@ -622,10 +622,8 @@ export class Match {
   private startCascade(): void {
     this.message = 'Gray blocks clearing…';
     removeGrays(this.board);
+    // Balls fall again but earn nothing: scores were final when they first stopped.
     this.cascadeQueue = cascadeAfterGrayRemoval(this.board, this.rng);
-    for (const item of this.cascadeQueue) {
-      this.players[item.player].score += item.addedScore;
-    }
     this.phase = 'cascade';
     this.anim = null;
     this.aiWalk = null;
