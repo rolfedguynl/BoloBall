@@ -40,8 +40,12 @@ export function mountAppShell(root: HTMLElement): {
       onLeft: () => void;
       onRight: () => void;
       onDrop: () => void;
+      onZoomToggle: () => void;
     },
   ) => void;
+  /** Drop-zoom popup parts (phones only). */
+  zoomPop: { el: HTMLElement; canvas: HTMLCanvasElement; close: HTMLButtonElement };
+  setZoomButton: (on: boolean) => void;
   /** Height of the HTML control bar overlaying the bottom of the canvas. */
   hudHeight: () => number;
 } {
@@ -58,6 +62,7 @@ export function mountAppShell(root: HTMLElement): {
           <button type="button" id="btn-new-game" title="New game (N)">New Game</button>
           <button type="button" id="btn-peek" title="Peek at opponent's balls (L)">Peek</button>
           <button type="button" id="btn-quick-finish" title="Auto-play all remaining marbles">Quick Finish</button>
+          <button type="button" id="btn-zoom" class="zoom-toggle" title="Zoom in on each drop" aria-pressed="true">Zoom</button>
           <button type="button" id="btn-sound" title="Toggle sound (S)">Sound</button>
           <button type="button" id="btn-to-menu" title="Back to menu (Esc)">Menu</button>
         </div>
@@ -104,6 +109,10 @@ export function mountAppShell(root: HTMLElement): {
           <p class="hint hint-touch">Tap a ball to aim · tap it again to drop · drag to slide</p>
           <p class="hint hint-keys">←→ move · ↓/Space push · L peek · T theme · S sound · N new · Esc menu</p>
         </div>
+      </div>
+      <div class="zoom-pop hidden" id="zoom-pop" aria-hidden="true">
+        <canvas id="zoom-canvas"></canvas>
+        <button type="button" id="zoom-close" aria-label="Close zoom">×</button>
       </div>
       <div class="rotate-notice" aria-live="polite">
         <div class="rotate-icon" aria-hidden="true">📱</div>
@@ -202,6 +211,18 @@ export function mountAppShell(root: HTMLElement): {
       (root.querySelector('#btn-quick-finish') as HTMLButtonElement).onclick = () =>
         handlers.onQuickFinish();
       (root.querySelector('#btn-sound') as HTMLButtonElement).onclick = () => handlers.onSound();
+      (root.querySelector('#btn-zoom') as HTMLButtonElement).onclick = () => handlers.onZoomToggle();
+    },
+    zoomPop: {
+      el: root.querySelector('#zoom-pop') as HTMLElement,
+      canvas: root.querySelector('#zoom-canvas') as HTMLCanvasElement,
+      close: root.querySelector('#zoom-close') as HTMLButtonElement,
+    },
+    setZoomButton(on) {
+      const btn = root.querySelector('#btn-zoom') as HTMLButtonElement;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', String(on));
+      btn.textContent = on ? 'Zoom on' : 'Zoom off';
     },
     hudHeight() {
       return hudBar.getBoundingClientRect().height;

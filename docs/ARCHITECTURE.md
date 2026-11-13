@@ -23,6 +23,21 @@ Input is bound in `src/game/input.ts`: keyboard, plus pointer events on the canv
 - shortens the score strip,
 - places the play stack slightly above the middle of the free space.
 
+### Drop zoom
+
+`ui/zoom.ts` runs after `renderMatch` each frame. `drawBoard` stores the falling ball's position in `layout.focus`. The zoom copies a region about 9 cells wide around that point out of the main canvas with `drawImage`, using `layout.scale` to convert to backing pixels, so nothing is drawn twice.
+
+- **Placement:** the popup sits between `layout.stackBottom` and the bottom of the screen, over the controls, which aren't used during a drop.
+- **Tracking:** each drop is identified by the `match.anim` object. The × records the current one so it doesn't reopen.
+- **Ending:** after the drop the last view lingers for 700ms and then fades.
+- **When it runs:** only when the phone media query matches, the setting is on (`localStorage` key `boloball-drop-zoom`), and Quick Finish is off.
+
+### Build id and update check
+
+`vite.config.ts` creates a build id, exposes it as `__BUILD_ID__`, and writes `dist/version.json`. `ui/update-check.ts` fetches that file with `cache: 'no-store'` on startup and whenever the tab becomes visible. If the deployed id is newer, it calls `location.replace(?v=<id>)`, only while `phase` is `menu` or `results`. A `sessionStorage` guard prevents reload loops, and the check is skipped in `npm run dev`.
+
+### CSS
+
 The CSS media queries in `styles/app.css` turn on the touch buttons and stack the HUD. On landscape phones they show a "turn your phone upright" notice. Real orientation locking is only possible through `screen.orientation.lock` (Android fullscreen) or the `orientation: portrait` setting in `public/manifest.webmanifest`, which applies when the game is installed to the home screen.
 
 ## Module map
@@ -40,7 +55,9 @@ The CSS media queries in `styles/app.css` turn on the touch buttons and stack th
 | `game/scoring.ts` | Thin re-export of drop scoring helpers |
 | `render/renderer.ts` | Canvas draw of board, pusher, HUD chrome |
 | `render/themes.ts` | Palettes and character styles per theme id |
-| `ui/menu.ts` | DOM shell: menu form, results, game buttons |
+| `ui/menu.ts` | DOM shell: menu form, results, game buttons, zoom popup |
+| `ui/zoom.ts` | Phone drop zoom: magnified view of the falling ball |
+| `ui/update-check.ts` | Reloads onto a newer deployed build (`version.json`) |
 | `ui/sound.ts` | Lightweight sound hooks |
 
 ## Match phases

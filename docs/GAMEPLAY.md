@@ -28,7 +28,7 @@ Higher levels and longer modes place more arrows, occasional random arrows, and 
 
 You cannot drop into a column where your marble for that column is already used, or where the entrance is blocked.
 
-On a phone, tap a ball to walk the pusher there and tap it again to drop. If the pusher is already over that column, one tap drops. The on-screen `◀` `DROP` `▶` buttons do the same. Controls for every input are listed in the [README](../README.md#controls).
+On a phone, tap a ball to walk the pusher there and tap it again to drop. If the pusher is already over that column, one tap drops. The on-screen `◀` `DROP` `▶` buttons do the same. While the ball falls, a zoom window follows it so the small phone board stays easy to read. `×` closes it for that drop, and the Zoom button turns it off. Controls for every input are listed in the [README](../README.md#controls).
 
 ## Tile types
 

@@ -5,7 +5,16 @@ import type { LayoutHit } from '../game/input';
 import { getTheme } from './themes';
 import type { ThemePalette } from './themes';
 
-export type RenderLayout = LayoutHit;
+export type RenderLayout = LayoutHit & {
+  /** CSS-pixel position of the ball currently dropping, if any. */
+  focus?: { x: number; y: number };
+  /** Bottom edge (CSS px) of the score strip under the board. */
+  stackBottom?: number;
+  /** Height (CSS px) of the exit gutter under the board. */
+  gutterH?: number;
+  /** Canvas backing pixels per CSS pixel. */
+  scale?: number;
+};
 
 /**
  * A full-window canvas on a HiDPI display reaches 8M+ backing pixels, which is
@@ -148,6 +157,9 @@ function drawFrame(
     boardW,
     boardH,
     cell,
+    stackBottom: boardY + boardH + 2 + gutterBand + scoreBand,
+    gutterH: gutterBand,
+    scale: dpr,
   };
 
   (canvas as HTMLCanvasElement & { __layout?: LayoutHit }).__layout = layout;
@@ -482,6 +494,7 @@ function drawBoard(
         : ar < 0
           ? boardY - cell * 0.35
           : boardY + ar * cell + cell / 2;
+      layout.focus = { x, y };
       drawBall(ctx, x, y, cell * 0.38, match.colorOf(match.anim.player), theme);
       if (match.anim.displayScore !== null) {
         ctx.fillStyle = '#fff';

@@ -42,6 +42,10 @@ The game is made for phones held **upright (portrait)**. The board fills the scr
 | Drag across the board | Aim live; lifting your finger does not drop |
 | `◀` / `▶` buttons | Move pusher one column |
 | `DROP` button | Drop marble |
+| `Zoom on` / `Zoom off` button | Turn the drop zoom on or off |
+| `×` on the zoom window | Close the zoom for this drop only |
+
+**Drop zoom:** on phones, a magnified window pops up over the controls while a ball falls. It follows the ball and fades out about 0.7s after the ball lands. It is on by default, the on/off choice is remembered on the device, and it stays hidden during Quick Finish.
 
 If the phone is turned sideways, a "turn your phone upright" notice covers the game. Normal web pages can't block rotation; Android can hold portrait when the game is opened fullscreen or added to the home screen.
 
@@ -70,6 +74,8 @@ HUD buttons mirror peek, sound, new game, menu, and **Quick Finish** (auto-plays
 ## Hosting (GitHub Pages)
 
 The built game in `dist/` is committed, and its paths are relative (`base: './'` in `vite.config.ts`), so it works from a sub-folder such as `https://<user>.github.io/BoloBall/`. After changing code, run `npm run build` and commit `dist/` with it.
+
+**Updates show up without clearing history.** GitHub Pages lets browsers cache `index.html` for a while, which used to keep the old game loading after a push. Each build now writes its id to `dist/version.json` and bakes the same id into the game. When the page opens, or the tab comes back into view, the game compares the two. If a newer build is deployed, it reloads once onto it, but only on the menu or results screen, never mid-game.
 
 The page is kept out of search engines with a `noindex` meta tag; `robots.txt` is also included but only applies at a domain root.
 

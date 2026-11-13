@@ -328,6 +328,60 @@ button {
   }
 }
 
+/* Drop zoom: a magnified view that follows the falling ball (phones only). */
+.zoom-toggle {
+  display: none;
+}
+
+.game-btns button.zoom-toggle.active {
+  border-color: var(--accent);
+  background: #1d4ed8;
+}
+
+.zoom-pop {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  z-index: 4;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #020617;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  opacity: 1;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.zoom-pop.fading {
+  opacity: 0;
+}
+
+.zoom-pop.hidden {
+  display: none;
+}
+
+.zoom-pop canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.zoom-pop #zoom-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #475569;
+  background: rgba(15, 23, 42, 0.85);
+  color: var(--text);
+  font: 700 22px/1 Outfit, sans-serif;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
 /* Browsers can't block rotation for a normal web page, so a phone turned
    sideways gets this notice covering the game instead. */
 .rotate-notice {
@@ -383,6 +437,10 @@ button {
 
   .touch-ctrls:not(.hidden) {
     display: flex;
+  }
+
+  .game-btns button.zoom-toggle {
+    display: inline-block;
   }
 
   .game-btns {

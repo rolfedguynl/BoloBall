@@ -4,6 +4,8 @@ import { bindInput } from './game/input';
 import { renderMatch } from './render/renderer';
 import { mountAppShell } from './ui/menu';
 import { playSound } from './ui/sound';
+import { createDropZoom } from './ui/zoom';
+import { startUpdateCheck } from './ui/update-check';
 import type { MatchConfig, ThemeId } from './game/types';
 
 const root = document.querySelector('#app');
@@ -12,6 +14,9 @@ if (!root) throw new Error('#app missing');
 const ui = mountAppShell(root as HTMLElement);
 const match = new Match();
 match.onSound = playSound;
+const zoom = createDropZoom(ui);
+// Reload onto a newer deployed build, but only while no game is running.
+startUpdateCheck(() => match.phase === 'menu' || match.phase === 'results');
 
 let lastCfg: (MatchConfig & { theme: ThemeId }) | null = null;
 let animAcc = 0;
@@ -42,6 +47,7 @@ function syncGameControls(visible: boolean): void {
     onLeft: () => match.moveSelector(-1),
     onRight: () => match.moveSelector(1),
     onDrop: () => match.tryDrop(),
+    onZoomToggle: () => zoom.toggle(),
   });
 }
 
@@ -178,7 +184,8 @@ function frame(now: number): void {
   bindThemes();
   const theme = match.theme;
   ui.canvas.classList.toggle('chunky', theme === 'classic');
-  renderMatch(ui.canvas.getContext('2d')!, ui.canvas, match, now, ui.hudHeight());
+  const layout = renderMatch(ui.canvas.getContext('2d')!, ui.canvas, match, now, ui.hudHeight());
+  zoom.update(match, layout, dt);
   requestAnimationFrame(frame);
 }
 
