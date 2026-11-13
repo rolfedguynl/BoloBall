@@ -90,7 +90,8 @@ export function createDropZoom(shell: ZoomShell): DropZoom {
     // Very short phones: not enough room below, so cover the lower board instead.
     if (screenH - bottom - top < MIN_HEIGHT) top = screenH - bottom - MIN_HEIGHT;
     el.style.top = `${Math.round(top)}px`;
-    el.style.bottom = `max(${bottom}px, env(safe-area-inset-bottom))`;
+    // Above the phone's gesture/nav bar, never underneath it.
+    el.style.bottom = `calc(env(safe-area-inset-bottom, 0px) + ${bottom}px)`;
   };
 
   const draw = (match: Match, layout: RenderLayout): void => {
@@ -111,7 +112,11 @@ export function createDropZoom(shell: ZoomShell): DropZoom {
     const minX = 0;
     const maxX = shell.canvas.clientWidth;
     const minY = layout.boardY - layout.cell * 2.5;
-    const maxY = layout.boardY + layout.boardH + 2 + (layout.gutterH ?? 0) + 2;
+    // Allow the view to run past the exit gutter down to the score strip, so a
+    // ball in the bottom rows or rolling out stays near the middle of the view
+    // instead of being pinned to its bottom edge.
+    const gutterBottom = layout.boardY + layout.boardH + 2 + (layout.gutterH ?? 0);
+    const maxY = Math.max(gutterBottom + layout.cell * 2.5, layout.stackBottom ?? gutterBottom);
     const clamp = (v: number, lo: number, hi: number, size: number): number =>
       hi - lo <= size ? (lo + hi - size) / 2 : Math.min(hi - size, Math.max(lo, v));
     const sx = clamp(cx - sw / 2, minX, maxX, sw);
