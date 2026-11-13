@@ -136,10 +136,10 @@ function drawFrame(
   // Center the play stack in the space between title bar and button bar
   const freeTop = topBar + padY;
   const freeH = Math.max(contentH, cssH - hudReserve - freeTop);
-  // Portrait: sit the board just above the controls (within thumb reach)
-  // rather than floating in the middle of a tall screen.
+  // Portrait: sit the play stack a little above the middle of the free space,
+  // so the board reads as centered on the screen above the controls.
   const slack = freeH - contentH;
-  const contentTop = freeTop + Math.floor(compact ? slack * 0.85 : slack / 2);
+  const contentTop = freeTop + Math.floor(compact ? slack * 0.4 : slack / 2);
   const boardY = contentTop + pusherBand + ballBand;
 
   const layout: RenderLayout = {

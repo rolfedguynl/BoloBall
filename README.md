@@ -31,19 +31,34 @@ Full rules and scoring: [docs/GAMEPLAY.md](docs/GAMEPLAY.md).
 
 ### Controls
 
+#### Phone / touch
+
+The game is made for phones held **upright (portrait)**. The board fills the screen width with the controls below it.
+
+| Touch | Action |
+|-------|--------|
+| Tap a ball (or anywhere in its column) | Walk the pusher to that column |
+| Tap the column the pusher is on | Drop, so a new ball takes two taps and the current one takes one |
+| Drag across the board | Aim live; lifting your finger does not drop |
+| `◀` / `▶` buttons | Move pusher one column |
+| `DROP` button | Drop marble |
+
+If the phone is turned sideways, a "turn your phone upright" notice covers the game. Normal web pages can't block rotation; Android can hold portrait when the game is opened fullscreen or added to the home screen.
+
+#### Keyboard / mouse
+
 | Input | Action |
 |-------|--------|
 | `←` / `→` | Move pusher |
 | `↓` / `Space` | Push / drop marble |
-| Click column | Select column |
-| Double-click | Drop |
+| Click column | Select column (click it again to drop) |
 | `L` | Peek at opponent’s remaining marbles |
 | `T` | Cycle theme (Classic / Polished / Arty) |
 | `S` | Toggle sound |
 | `N` | New game |
 | `Esc` | Back to menu |
 
-HUD buttons mirror peek, sound, new game, menu, and **Quick Finish** (auto-plays the rest of the level with faster animation).
+HUD buttons mirror peek, sound, new game, menu, and **Quick Finish** (auto-plays the rest of the level with faster animation). On phones the theme buttons are hidden during play; choose a theme in the start menu.
 
 ### Game options
 
@@ -51,6 +66,12 @@ HUD buttons mirror peek, sound, new game, menu, and **Quick Finish** (auto-plays
 - Length: **Short** (1 level), **Long** (3), **Extended** (5)
 - AI: Easy / Normal / Hard
 - Themes: Classic, Polished, Arty (switchable mid-game)
+
+## Hosting (GitHub Pages)
+
+The built game in `dist/` is committed, and its paths are relative (`base: './'` in `vite.config.ts`), so it works from a sub-folder such as `https://<user>.github.io/BoloBall/`. After changing code, run `npm run build` and commit `dist/` with it.
+
+The page is kept out of search engines with a `noindex` meta tag; `robots.txt` is also included but only applies at a domain root.
 
 ## Project layout
 
@@ -61,7 +82,8 @@ src/
   render/           Canvas renderer + themes
   ui/               Menu, results, sound
   styles/           App CSS
-public/             Favicon and static assets
+public/             Favicon, robots.txt, web app manifest
+dist/               Built game (committed, served by GitHub Pages)
 docs/               Gameplay rules and architecture notes
 ```
 

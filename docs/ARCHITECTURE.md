@@ -12,7 +12,18 @@ TypeScript + Vite SPA. Game logic is pure (board / physics / AI); the canvas ren
 4. Sync HUD / theme buttons
 5. `renderMatch(...)` to the canvas
 
-Input is bound in `src/game/input.ts` (keyboard + click / double-click on the board). Menu and results live in `src/ui/menu.ts`.
+Input is bound in `src/game/input.ts`: keyboard, plus pointer events on the canvas that work for both mouse and touch. A press on a new column selects it, a press on the selected column drops, and dragging aims. Drops compare against `selectorCol` instead of using double-click, which phones treat as zoom. Menu, results and the on-screen `◀ DROP ▶` buttons live in `src/ui/menu.ts`.
+
+## Layout and mobile
+
+`renderMatch` receives the measured height of the HTML button bar so the canvas never draws under it. When the canvas is portrait or narrower than 700px (`compact`), the renderer:
+
+- uses almost the full width for the board,
+- splits the title onto two lines,
+- shortens the score strip,
+- places the play stack slightly above the middle of the free space.
+
+The CSS media queries in `styles/app.css` turn on the touch buttons and stack the HUD. On landscape phones they show a "turn your phone upright" notice. Real orientation locking is only possible through `screen.orientation.lock` (Android fullscreen) or the `orientation: portrait` setting in `public/manifest.webmanifest`, which applies when the game is installed to the home screen.
 
 ## Module map
 
@@ -24,7 +35,7 @@ Input is bound in `src/game/input.ts` (keyboard + click / double-click on the bo
 | `game/levels.ts` | Procedural Soleau-like boards per level/mode/seed; carry bonuses |
 | `game/match.ts` | Match state machine: turns, animation, AI scheduling, multi-level flow |
 | `game/ai.ts` | Column choice by difficulty-weighted evaluation |
-| `game/input.ts` | Keyboard / mouse → match commands |
+| `game/input.ts` | Keyboard and pointer (mouse / touch) → match commands |
 | `game/rng.ts` | Seeded PRNG for reproducible boards and random tiles |
 | `game/scoring.ts` | Thin re-export of drop scoring helpers |
 | `render/renderer.ts` | Canvas draw of board, pusher, HUD chrome |

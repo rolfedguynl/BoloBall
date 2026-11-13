@@ -72,7 +72,24 @@ function newGame(): void {
   goToMenu();
 }
 
+/**
+ * Ask the browser to hold portrait. Only works where it is allowed (Android
+ * fullscreen or an installed home-screen app); everywhere else it is a no-op
+ * and the CSS rotate notice covers landscape phones instead.
+ */
+function lockPortrait(): void {
+  try {
+    const orientation = screen.orientation as ScreenOrientation & {
+      lock?: (o: string) => Promise<void>;
+    };
+    orientation?.lock?.('portrait')?.catch(() => {});
+  } catch {
+    /* unsupported */
+  }
+}
+
 function startGame(cfg: MatchConfig & { theme: ThemeId }): void {
+  lockPortrait();
   lastCfg = cfg;
   resultsShown = false;
   lastTheme = null;

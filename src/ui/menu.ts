@@ -105,6 +105,10 @@ export function mountAppShell(root: HTMLElement): {
           <p class="hint hint-keys">←→ move · ↓/Space push · L peek · T theme · S sound · N new · Esc menu</p>
         </div>
       </div>
+      <div class="rotate-notice" aria-live="polite">
+        <div class="rotate-icon" aria-hidden="true">📱</div>
+        <p>Turn your phone upright to play</p>
+      </div>
       <div class="overlay hidden" id="results-overlay">
         <div class="panel result-panel" id="result-panel">
           <div class="result-kicker" id="result-kicker">Game Over</div>
