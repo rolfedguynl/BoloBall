@@ -283,6 +283,21 @@ button {
 }
 
 /* On-screen ◀ DROP ▶ — optional helpers; tapping the board works on its own. */
+/* Sits just under the canvas title bar (46px tall in the phone layout, see
+   renderer.ts). Only the buttons catch touches, so finger-drag aiming on the
+   board below keeps working. */
+.touch-bar {
+  position: absolute;
+  top: 54px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left));
+  pointer-events: none;
+}
+
 .touch-ctrls {
   display: none;
   gap: 10px;
@@ -425,7 +440,7 @@ button {
   }
 }
 
-/* Phones (portrait or narrow): stack controls under the board. */
+/* Phones (portrait or narrow): ◀ DROP ▶ above the board, menu buttons below. */
 @media (orientation: portrait), (max-width: 700px), (pointer: coarse) and (max-height: 500px) {
   .hud-bar {
     flex-direction: column;

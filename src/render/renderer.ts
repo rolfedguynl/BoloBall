@@ -69,13 +69,15 @@ export function renderMatch(
   timeMs: number,
   /** Height of the HTML control bar overlapping the bottom of the canvas. */
   hudHeight = 52,
+  /** Bottom edge of HTML controls overlapping the top of the canvas (0 = none). */
+  topControlsBottom = 0,
 ): RenderLayout {
   const started = performance.now();
   // Long gaps mean the tab was parked, not that the last frame was slow.
   const gap = started - lastFrameAt;
   if (lastFrameAt > 0 && gap < 200) avgFrameMs = avgFrameMs * 0.9 + gap * 0.1;
   lastFrameAt = started;
-  const layout = drawFrame(ctx, canvas, match, timeMs, hudHeight);
+  const layout = drawFrame(ctx, canvas, match, timeMs, hudHeight, topControlsBottom);
   avgRenderMs = avgRenderMs * 0.9 + (performance.now() - started) * 0.1;
   return layout;
 }
@@ -86,6 +88,7 @@ function drawFrame(
   match: Match,
   timeMs: number,
   hudHeight: number,
+  topControlsBottom: number,
 ): RenderLayout {
   const theme = getTheme(match.theme);
   const cssW = canvas.clientWidth;
@@ -125,11 +128,16 @@ function drawFrame(
   const padY = 6;
   // Space kept free at the bottom for the HTML button bar
   const hudReserve = Math.max(0, Math.ceil(hudHeight));
+  // Phones put ◀ DROP ▶ under the title bar; the play stack starts below it,
+  // with a gap so the pusher row stays clear for finger-drag aiming.
+  const topControlsGap = 12;
+  const topReserve =
+    topControlsBottom > 0 ? Math.max(topBar, Math.ceil(topControlsBottom) + topControlsGap) : topBar;
 
   // Pusher and ball bands scale with the cell so nothing gets clipped:
   //   pusherBand = 1.5 * cell, ballBand = cell + 6, gutterBand = 0.9 * cell
   const boardAreaW = cssW - padX * 2;
-  const fixedChrome = topBar + scoreBand + hudReserve + 6 + padY * 2;
+  const fixedChrome = topReserve + scoreBand + hudReserve + 6 + padY * 2;
   const cellByHeight = (cssH - fixedChrome) / (ROWS + 3.4);
   const cell = Math.max(8, Math.floor(Math.min(boardAreaW / COLS, cellByHeight)));
   // Tiny cells would squash the pusher into the title bar; keep a floor.
@@ -142,13 +150,18 @@ function drawFrame(
   const boardH = cell * ROWS;
   const boardX = Math.floor((cssW - boardW) / 2);
   const contentH = pusherBand + ballBand + boardH + gutterBand + scoreBand;
-  // Center the play stack in the space between title bar and button bar
-  const freeTop = topBar + padY;
+  // Center the play stack in the space between the top controls (title bar,
+  // plus ◀ DROP ▶ on phones) and the button bar at the bottom.
+  const freeTop = topReserve + padY;
   const freeH = Math.max(contentH, cssH - hudReserve - freeTop);
-  // Portrait: sit the play stack a little above the middle of the free space,
-  // so the board reads as centered on the screen above the controls.
   const slack = freeH - contentH;
-  const contentTop = freeTop + Math.floor(compact ? slack * 0.4 : slack / 2);
+  // Phones with ◀ DROP ▶ on top: keep the play stack a fixed 40px under the
+  // buttons (room to start a finger-drag) and leave the rest of the space
+  // below, where the drop zoom appears. Otherwise center it.
+  const contentTop =
+    topControlsBottom > 0
+      ? Math.min(freeTop + slack, Math.max(freeTop, Math.ceil(topControlsBottom) + 40))
+      : freeTop + Math.floor(slack / 2);
   const boardY = contentTop + pusherBand + ballBand;
 
   const layout: RenderLayout = {

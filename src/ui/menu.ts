@@ -48,16 +48,20 @@ export function mountAppShell(root: HTMLElement): {
   setZoomButton: (on: boolean) => void;
   /** Height of the HTML control bar overlaying the bottom of the canvas. */
   hudHeight: () => number;
+  /** Bottom edge (CSS px) of the ◀ DROP ▶ bar at the top, or 0 when hidden. */
+  touchBarBottom: () => number;
 } {
   root.innerHTML = `
     <div class="shell">
       <canvas id="game" tabindex="0" aria-label="Bolo Ball game board"></canvas>
-      <div class="hud-bar" id="hud-bar">
+      <div class="touch-bar" id="touch-bar">
         <div class="touch-ctrls hidden" id="touch-ctrls">
           <button type="button" id="btn-left" aria-label="Move left">◀</button>
           <button type="button" id="btn-drop" class="drop" aria-label="Drop ball">DROP</button>
           <button type="button" id="btn-right" aria-label="Move right">▶</button>
         </div>
+      </div>
+      <div class="hud-bar" id="hud-bar">
         <div class="game-btns hidden" id="game-btns">
           <button type="button" id="btn-new-game" title="New game (N)">New Game</button>
           <button type="button" id="btn-peek" title="Peek at opponent's balls (L)">Peek</button>
@@ -226,6 +230,11 @@ export function mountAppShell(root: HTMLElement): {
     },
     hudHeight() {
       return hudBar.getBoundingClientRect().height;
+    },
+    touchBarBottom() {
+      const r = touchCtrls.getBoundingClientRect();
+      if (r.height === 0) return 0;
+      return r.bottom - root.getBoundingClientRect().top;
     },
   };
 }

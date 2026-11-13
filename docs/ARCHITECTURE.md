@@ -16,18 +16,25 @@ Input is bound in `src/game/input.ts`: keyboard, plus pointer events on the canv
 
 ## Layout and mobile
 
-`renderMatch` receives the measured height of the HTML button bar so the canvas never draws under it. When the canvas is portrait or narrower than 700px (`compact`), the renderer:
+`renderMatch` receives two measurements so the canvas never draws under HTML controls:
+
+- the height of the button bar at the bottom (`ui.hudHeight()`),
+- the bottom edge of the `◀ DROP ▶` bar at the top (`ui.touchBarBottom()`), which is 0 when that bar is hidden, as on desktop.
+
+On phones the `◀ DROP ▶` bar (`.touch-bar` in `styles/app.css`) sits just under the 46px canvas title bar. The play stack starts 40px below it, so the pusher row and the board stay free for finger-drag aiming. The remaining space goes below the board, where the drop zoom appears. The bar only catches touches on its own buttons.
+
+When the canvas is portrait or narrower than 700px (`compact`), the renderer:
 
 - uses almost the full width for the board,
 - splits the title onto two lines,
 - shortens the score strip,
-- places the play stack slightly above the middle of the free space.
+- places the play stack 40px under the top controls; without them, it is centered.
 
 ### Drop zoom
 
 `ui/zoom.ts` runs after `renderMatch` each frame. `drawBoard` stores the falling ball's position in `layout.focus`. The zoom copies a region about 9 cells wide around that point out of the main canvas with `drawImage`, using `layout.scale` to convert to backing pixels, so nothing is drawn twice.
 
-- **Placement:** the popup sits between `layout.stackBottom` and the bottom of the screen, over the controls, which aren't used during a drop.
+- **Placement:** the popup sits between `layout.stackBottom` and the bottom of the screen, over the menu buttons, which aren't needed during a drop.
 - **Tracking:** each drop is identified by the `match.anim` object. The × records the current one so it doesn't reopen.
 - **Ending:** after the drop the last view lingers for 700ms and then fades.
 - **When it runs:** only when the phone media query matches, the setting is on (`localStorage` key `boloball-drop-zoom`), and Quick Finish is off.

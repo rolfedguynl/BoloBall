@@ -33,7 +33,7 @@ Full rules and scoring: [docs/GAMEPLAY.md](docs/GAMEPLAY.md).
 
 #### Phone / touch
 
-The game is made for phones held **upright (portrait)**. The board fills the screen width with the controls below it.
+The game is made for phones held **upright (portrait)**. The `◀ DROP ▶` buttons sit at the top, the board fills the screen width in the middle, and the menu buttons are at the bottom. A 40px gap between the buttons and the board leaves room to slide a finger across the board to aim.
 
 | Touch | Action |
 |-------|--------|
@@ -45,7 +45,7 @@ The game is made for phones held **upright (portrait)**. The board fills the scr
 | `Zoom on` / `Zoom off` button | Turn the drop zoom on or off |
 | `×` on the zoom window | Close the zoom for this drop only |
 
-**Drop zoom:** on phones, a magnified window pops up over the controls while a ball falls. It follows the ball and fades out about 0.7s after the ball lands. It is on by default, the on/off choice is remembered on the device, and it stays hidden during Quick Finish.
+**Drop zoom:** on phones, a magnified window pops up below the board, over the menu buttons, while a ball falls. It follows the ball and fades out about 0.7s after the ball lands. It is on by default, the on/off choice is remembered on the device, and it stays hidden during Quick Finish.
 
 If the phone is turned sideways, a "turn your phone upright" notice covers the game. Normal web pages can't block rotation; Android can hold portrait when the game is opened fullscreen or added to the home screen.
 

@@ -184,7 +184,14 @@ function frame(now: number): void {
   bindThemes();
   const theme = match.theme;
   ui.canvas.classList.toggle('chunky', theme === 'classic');
-  const layout = renderMatch(ui.canvas.getContext('2d')!, ui.canvas, match, now, ui.hudHeight());
+  const layout = renderMatch(
+    ui.canvas.getContext('2d')!,
+    ui.canvas,
+    match,
+    now,
+    ui.hudHeight(),
+    ui.touchBarBottom(),
+  );
   zoom.update(match, layout, dt);
   requestAnimationFrame(frame);
 }
